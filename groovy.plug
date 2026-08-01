@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.rahul.fullstack'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    // Automated Dependency Management (Clean & Concise)
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation 'com.mysql:mysql-connector-j:8.0.33'
+    
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Custom Gradle Task
+tasks.register('buildInfo') {
+    doLast {
+        println " Executing Day 32 Build Pipeline via Gradle"
+        println "Target Java Version: ${java.toolchain.languageVersion.get()}"
+    }
+}
