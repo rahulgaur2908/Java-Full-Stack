@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: fullstack-backend-service
+
+  # Database Connection Details (PostgreSQL / MySQL)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fullstack_db
+    username: postgres
+    password: ${DB_PASSWORD:secret_password}
+    driver-class-name: org.postgresql.Driver
+
+    # HikariCP Connection Pool Optimization
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+
+  # JPA & Hibernate Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate # Options: none, validate, update, create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
