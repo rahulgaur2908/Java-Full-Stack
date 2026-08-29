@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # 1. Relational Database
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: fullstack_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fullstack-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d fullstack_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Distributed In-Memory Cache
+  redis-cache:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - fullstack-network
+
+  # 3. Spring Boot Backend API
+  backend-service:
+    build: ./backend
+    container_name: backend-service
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/fullstack_db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATA_REDIS_HOST: redis-cache
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      redis-cache:
+        condition: service_started
+    networks:
+      - fullstack-network
+
+  # 4. React Frontend (Nginx)
+  frontend-client:
+    build: ./frontend
+    container_name: frontend-client
+    ports:
+      - "80:80"
+    depends_on:
+      - backend-service
+    networks:
+      - fullstack-network
+
+networks:
+  fullstack-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
